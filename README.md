@@ -1,5 +1,5 @@
 # IM-TQA: A Chinese Table Question Answering Dataset with Implicit and Multi-type Table Structures
-## Dataset Description
+## 1. Dataset Description
 
 IM-TQA is a Chinese table question answering dataset with **1,200 tables** and **5,000 question-answer pairs**, which highlights **I**mplicit and **M**ulti-type table structures for real-world **TQA** scenarios. **It yields a more challenging table QA setting with two characteristics**: 
 
@@ -14,7 +14,7 @@ By contrast, previous TQA benchmarks mainly focus on limited table types with ex
 </p>
 
 
-## Considered Table Types and Header Cells
+## 2. Considered Table Types and Header Cells
 As shown in Figure 1, **we divide tables into 4 types according to their structure characteristics**, which is in line with previous works with complex table as an important complement. Exploring and including more table types deserve future investigations.
 
 - **Vertical Table**: Table data is arranged in the vertical direction, with the first row as column headers and other rows as data tuples.
@@ -28,14 +28,14 @@ To promote the understanding of implicit table structures, **we categorize table
 - **Row Index and Column Index**: Row index and column index are individual cells that are used to index data records in the row or column orientation, e.g., blue cells and green cells in Figure 1. Index cells are also meaningful data. For instance, in vertical tables, data cells in the primary key column are unique identifiers of each row.
 - **Pure Data**: Pure data cells are the core body of a table. They do not have the function of describing or indexing other cells and their meanings should be understood with the help of above header cells.
 
-## Table Storage and Annotation
+## 3. Table Storage and Annotation
 In order to store various tables, we design a storage method which separately stores cell positions $P$ and cell contents $V$. To store cell positions, a cell ID is assigned to each table cell in the row-first order. For a table including $m$ rows and $n$ columns, its cell IDs constitute an $m×n$ matrix representing cell locations. This matrix contains table layout information such as neighbouring relations between different cells. As for cell contents, every cell value is put into a list in the same row-first order. An example format is shown in Figure 3. Given the cell ID matrix and cell value list, we instructed annotators in distinguishing 5 cell types and asked them to annotate cell ID lists of attribute and index cells. Other table cells are deemed pure data cells. After identifying header cells, we asked annotators to raise look-up questions about data cells and label answer cell IDs.
 
 <p align = "center">    
 <img src="./images/example_format.png" width = "420" height = "350" align="middle"/>
 </p>
 
-## Sample Format
+## 4. Sample Format
 IM-TQA dataset consists of six `.json` files for train/dev/test samples in the `data` directory. `train_tables.json`, `dev_tables.json`, and `test_tables.json` store table data and annotated header cells, and `train_questions.json`, `dev_questions.json`, and `test_questions.json` store question-answer pairs. Table samples and question-answer pairs are dictionary objects. Though IM-TQA is collected from Chinese tables, we adopt [a commercial machine translation model](https://cloud.baidu.com/product/mt/text_trans) to translate tables and questions in IM-TQA from Chinese into English. But it should be noted that we did not double check the translation results so the translation quality may be poor.
 
 Table sample format:
@@ -79,7 +79,7 @@ The dataset split statistics are shown below:
 | \# hierarchical tables | 231   | 35    | 34    | 300   |
 | \# complex tables      | 251   | 11    | 38    | 300   |
 
-## Leader Board
+## 5. Leader Board
 We evaluate traditional TQA methods and recent powerful large language models (LLMs) like ChatGPT. (The LLM's output files are stored in the `llm_outputs` directory.) From the results shown below, we can find that ChatGPT performs pretty well in handing look-up questions which select specific table cells as answers. This also demonstrates that more complicated questions are needed to present a comprehensive evaluation of LLM's table understanding ability. Some recent studies have made valid progress towards this goal, e.g., [[1]](https://arxiv.org/abs/2305.13062), [[2]](https://arxiv.org/abs/2204.00498).
 
 <table style="border-collapse: collapse; border: none; border-spacing: 0px;">
@@ -219,6 +219,46 @@ We evaluate traditional TQA methods and recent powerful large language models (L
     <td style="border-bottom: 1px solid black; text-align: center; padding-right: 3pt; padding-left: 3pt;">
       94.1
 </table>
+
+## 6. Model Training and Evaluation
+### 6.1 Environment
+### 6.2 RGCN for Cell Type Classification (CTC)
+
+#### Step 1: Convert Tables into Heterogeneous Graphs in PGL
+The 'init_embedding_model' is the model name which is used to encode cell text to 768-dim semantic features. It will be passed to model.from_pretrained() and you can change the code to set it to the local path of your pre-downloaded model. The resulting PGL graph objects will be saved as pickle files (.pkl).
+``` shell
+cd CTC_code
+python convert_tables_to_graphs.py \
+--tables_dir='../data/' \
+--saved_graphs_dir='../data/' \
+--init_embedding_model='bert-base-chinese'
+# or you can directly run: sh build_graphs_based_on_tables.sh 
+```
+#### Step 2: Train an AutoEncoder 
+The auto encoder is used to convert discrete 24-dim manual features to continuous 32-dim features. The resulting 32-dim cell features of each table will also be saved as pickle files (.pkl).
+``` shell
+CUDA_VISIBLE_DEVICES=0 nohup python train_auto_encoder.py \
+--run_num=1 \
+--enc_hidden_dim=32 \
+--manual_feat_dim=24 \
+--random_seed=12345 \
+--data_dir='../data/' \ 
+--feats_save_dir='../data/' \ 
+--model_save_dir='./saved_models/ctc_auto_encoder/' > ./log_files/train_auto_encoder_to_encode_manual_cell_feats.log &
+# or you can directly run: sh train_auto_encoder.sh
+```
+#### Step 3: Include 32-dim features to existing graphs to obtain final graphs
+The script will save the best CTC model based on performance on validation set and the predicted results of test set will also be saved for the following table question answering. You can also save model of each epoch and select a great model on you own.
+``` shell
+python3 add_manual_feats_to_table_graphs.py
+```
+Make sure data paths in 'add_manual_feats_to_table_graphs.py' are correct.
+#### Step 4: Train an R-GCN model for CTC task
+``` shell
+sh train_ctc_gnn.sh
+```
+### 6.3 RCI for Table Question Answering (TQA)
+TODO
 
 ## Limitations
 Though we made the first exploration towards real-life TQA scenarios with implicit and multi-type tables, this work faces some limitations:

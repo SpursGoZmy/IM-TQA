@@ -1,0 +1,13 @@
+CUDA_VISIBLE_DEVICES=0 nohup python train_ctc_task.py \
+--run_num=1 \
+--epoch_num=20 \
+--input_size=800 \
+--hidden_size=800 \
+--layer_num=4 \
+--num_class=5 \
+--learning_rate=0.0001 \
+--random_seed=15643 \
+--data_dir='../data/' \
+--graph_save_dir='../data/rgcn_updated_graphs/' \
+--model_save_dir='./saved_models/ctc_rgcn/' \
+--pred_save_dir='./pred_results/ctc_pred_results_gnn_with_manual_feats/' > ./log_files/ctc_task_rgcn/train_heter_rgcn_on_ctc_task_epoch_20_layer_num_4_hidden_size_800.log &

@@ -1,4 +1,14 @@
 # IM-TQA: A Chinese Table Question Answering Dataset with Implicit and Multi-type Table Structures
+Table of contents:
+
+- [1. Dataset Description](#1-dataset-description)
+- [2. Considered Table Types and Header Cells](#2-considered-table-types-and-header-cells)
+- [3. Table Storage and Annotation](#3-table-storage-and-annotation)
+- [4. Sample Format](#4-sample-format)
+- [5. Leader Board](#5-leader-board)
+- [6. Model Training and Evaluation](#6-model-training-and-evaluation)
+- [7. Limitations](#7-limitations)
+
 ## 1. Dataset Description
 
 IM-TQA is a Chinese table question answering dataset with **1,200 tables** and **5,000 question-answer pairs**, which highlights **I**mplicit and **M**ulti-type table structures for real-world **TQA** scenarios. **It yields a more challenging table QA setting with two characteristics**: 
@@ -221,7 +231,7 @@ We evaluate traditional TQA methods and recent powerful large language models (L
 </table>
 
 ## 6. Model Training and Evaluation
-### 6.1 Environment
+### 6.1 Environment Setup
 ### 6.2 RGCN for Cell Type Classification (CTC)
 
 #### Step 1: Convert Tables into Heterogeneous Graphs in PGL
@@ -248,19 +258,20 @@ CUDA_VISIBLE_DEVICES=0 nohup python train_auto_encoder.py \
 # or you can directly run: sh train_auto_encoder.sh
 ```
 #### Step 3: Include 32-dim features to existing graphs to obtain final graphs
-The script will save the best CTC model based on performance on validation set and the predicted results of test set will also be saved for the following table question answering. You can also save model of each epoch and select a great model on you own.
 ``` shell
 python3 add_manual_feats_to_table_graphs.py
 ```
-Make sure data paths in 'add_manual_feats_to_table_graphs.py' are correct.
+Make sure data paths in 'add_manual_feats_to_table_graphs.py' are correct and the resulting heter graphs with node features of two types will be saved as pickle files (.pkl).
 #### Step 4: Train an R-GCN model for CTC task
+This script will train an R-GCN model for CTC task using constructed heterogeneous graphs of the train split. It will save the best CTC model based on performance on validation split and predicted results (CTC task) of tables of each split will be saved for the subsequent table question answering (TQA) task. You can also save model of each epoch and select the best model based on you own metric.
 ``` shell
 sh train_ctc_gnn.sh
 ```
+
 ### 6.3 RCI for Table Question Answering (TQA)
 TODO
 
-## Limitations
+## 7. Limitations
 Though we made the first exploration towards real-life TQA scenarios with implicit and multi-type tables, this work faces some limitations:
 - Our proposed dataset is in Chinese and focuses on single table. Though we translate the dataset from Chinese into English, we think it is better to directly construct a corresponding large-scale English TQA dataset in consideration of data quality. To build such a dataset with limited resource, one can fully utilize abundant tables in existing English TQA datasets.
 - This work focuses on *Lookup* questions and more complicated questions which need multi-hop reasoning and numerical calculations are needed.

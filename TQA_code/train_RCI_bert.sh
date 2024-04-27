@@ -1,0 +1,31 @@
+CUDA_VISIBLE_DEVICES=0 nohup python train_RCI_model.py \
+--model_type bert-base-chinese \
+--do_lower_case \
+--train_dir ./datasets/IM_TQA/train_rows.jsonl.gz \
+--dev_dir ./datasets/IM_TQA/test_rows.jsonl.gz \
+--seed 1234 \
+--full_train_batch_size 64 \
+--gradient_accumulation_steps 8 \
+--num_train_epochs 3 \
+--learning_rate 2e-5 \
+--warmup_fraction 0.1 \
+--train_instances 29849 \
+--weight_decay 0.01 \
+--max_seq_length 512 \
+--output_dir ./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/row_bert_base > ./log_files/IM_TQA/train_rci_row_model.log &
+
+CUDA_VISIBLE_DEVICES=1 nohup python train_RCI_model.py \
+--model_type bert-base-chinese \
+--do_lower_case \
+--train_dir ./datasets/IM_TQA/train_cols.jsonl.gz \
+--dev_dir ./datasets/IM_TQA/test_cols.jsonl.gz \
+--seed 5678 \
+--full_train_batch_size 64 \
+--gradient_accumulation_steps 8 \
+--num_train_epochs 3 \
+--learning_rate 2e-5 \
+--warmup_fraction 0.1 \
+--train_instances 20554 \
+--weight_decay 0.01 \
+--max_seq_length 512 \
+--output_dir ./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/col_bert_base > ./log_files/IM_TQA/train_rci_col_bert_base.log &

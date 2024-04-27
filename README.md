@@ -232,6 +232,7 @@ We evaluate traditional TQA methods and recent powerful large language models (L
 
 ## 6. Model Training and Evaluation
 ### 6.1 Environment Setup
+We use PaddlePaddle to implement our model and all experiments were conducted on a NVIDIA TITAN RTX 24GB GPU. We understand that configuring the experiment environment with PaddlePaddle may encouter some problems and we suggest looking for solutions from the official[ PaddlePaddle Github Issues](https://github.com/PaddlePaddle/Paddle/issues).
 ```shell
 conda create -n IM_TQA python=3.7
 conda activate IM_TQA

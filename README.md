@@ -275,8 +275,55 @@ sh train_ctc_gnn.sh
 ```
 
 ### 6.3 RCI for Table Question Answering (TQA)
-TODO
-
+The implementation of TQA model is adapted from the codebase of the original [RCI model](https://github.com/IBM/row-column-intersection) which uses PyTorch.
+#### Step 1: Construct row and column representations with header contents
+The resulting row and column representations of train and test splits will be stored in `TQA_code/datasets/IM_TQA/` and include 4 files (i.e., `train_cols.jsonl.gz`, `train_rows.jsonl.gz`, `test_cols.jsonl.gz` and `test_rows.jsonl.gz`).
+``` shell
+cd TQA_code
+sh build_row_and_column_repr.sh # TODO
+```
+#### Step 2: Train the RCI row and column model
+The training task is a 2-class sentence-pair classification task. Given a row or a column representation and a input question, the bert-base-chinese model learns to predict whether this row or column contains the final answer cell(s). The trained model will be respectively saved at `./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/col_bert_base` and `./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/row_bert_base`.
+``` shell
+sh train_RCI_bert.sh 
+```
+#### Step 3: Apply the RCI row and column model on the test splits
+In this step, the trained row and column model predicts whether a row or a column contains the answer cells. The inference results will be saved at `./datasets/IM_TQA/apply_bert/col_bert/results0.jsonl.gz` and `./datasets/IM_TQA/apply_bert/row_bert/results0.jsonl.gz`.
+``` shell
+sh apply_RCI.sh 
+```
+#### Step 4: Compute exact match score
+Based on the positive row ids and column ids, the predicted answer cell ids are extracted (i.e., cell_ID_matric[row_id][col_id]) and are compared with gold answer cell ids to compute exact match scores. Make sure related file path in the `compute_RCI_exact_match.py` are correct. The predicted results of one run was saved at `./datasets/IM_TQA/RGCN-RCI_test_pred_results.pkl`. 
+```python
+python compute_RCI_exact_match.py
+```
+Since we have provided results of Step 3 of one experiment, you can directly run the above command to validate its results. This should give:
+```
+(1) report on all tables:
+total exact match score:  0.5311004784688995
+correct question num:  333
+total question num: 627
+--------------------
+(2) report on complex tables:
+exact match score on complex tables: 0.3023255813953488
+correct question num on complex tables: 52
+total question num on complex tables: 172
+--------------------
+(3) report on vertical tables:
+exact match score on vertical tables: 0.7126436781609196
+correct question num on vertical tables: 124
+total question num on vertical tables: 174
+--------------------
+(4) report on horizontal tables:
+exact match score on horizontal tables: 0.45901639344262296
+correct question num on horizontal tables: 56
+total question num on horizontal tables: 122
+--------------------
+(5) report on hierarchical tables:
+exact match score on hierarchical tables: 0.6352201257861635
+correct question num on hierarchical tables: 101
+total question num on hierarchical tables: 159
+```
 ## 7. Limitations
 Though we made the first exploration towards real-life TQA scenarios with implicit and multi-type tables, this work faces some limitations:
 - Our proposed dataset is in Chinese and focuses on single table. Though we translate the dataset from Chinese into English, we think it is better to directly construct a corresponding large-scale English TQA dataset in consideration of data quality. To build such a dataset with limited resource, one can fully utilize abundant tables in existing English TQA datasets.

@@ -293,7 +293,7 @@ In this step, the trained row and column model predicts whether a row or a colum
 sh apply_RCI.sh 
 ```
 #### Step 4: Compute exact match score
-Based on the positive row ids and column ids, the predicted answer cell ids are extracted (i.e., cell_ID_matric[row_id][col_id]) and are compared with gold answer cell ids to compute exact match scores. Make sure related file path in the `compute_RCI_exact_match.py` are correct. The predicted results of one run was saved at `./datasets/IM_TQA/RGCN-RCI_test_pred_results.pkl`. 
+Based on the positive row ids and column ids, the predicted answer cell ids are extracted (i.e., cell_ID_matric[row_id][col_id]) and are compared with gold answer cell ids to compute exact match scores. Make sure related file path in the `compute_RCI_exact_match.py` are correct (line 36-47). The predicted results of one run will be saved at `./datasets/IM_TQA/RGCN-RCI_test_pred_results.pkl`. 
 ```python
 python compute_RCI_exact_match.py
 ```

@@ -232,6 +232,11 @@ We evaluate traditional TQA methods and recent powerful large language models (L
 
 ## 6. Model Training and Evaluation
 ### 6.1 Environment Setup
+```shell
+conda create -n IM_TQA python=3.7
+conda activate IM_TQA
+pip install -r requirements.txt
+```
 ### 6.2 RGCN for Cell Type Classification (CTC)
 
 #### Step 1: Convert Tables into Heterogeneous Graphs in PGL

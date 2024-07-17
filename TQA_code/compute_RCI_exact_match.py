@@ -39,7 +39,6 @@ row_prediction_file = "./datasets/IM_TQA/apply_bert/row_bert/"
 pred_test_pred_results_save_path=open('./datasets/IM_TQA/RGCN-RCI_test_pred_results.pkl','wb')
 qid_to_related_row_ids = gather_predictions(row_prediction_file)
 qid_to_related_col_ids = gather_predictions(col_prediction_file)
-qid = list(qid_to_related_col_ids.keys())[0]
 print("len(qid_to_related_row_ids):", len(qid_to_related_row_ids))
 print("len(qid_to_related_col_ids):", len(qid_to_related_col_ids))
 # load ground truth

@@ -277,11 +277,7 @@ sh train_ctc_gnn.sh
 ### 6.3 RCI for Table Question Answering (TQA)
 The implementation of TQA model is adapted from the codebase of the original [RCI model](https://github.com/IBM/row-column-intersection) which uses PyTorch.
 #### Step 1: Construct row and column representations with header contents
-The resulting row and column representations of train and test splits will be stored in `TQA_code/datasets/IM_TQA/` and include 4 files (i.e., `train_cols.jsonl.gz`, `train_rows.jsonl.gz`, `test_cols.jsonl.gz` and `test_rows.jsonl.gz`).
-``` shell
-cd TQA_code
-sh build_row_and_column_repr.sh # TODO
-```
+First `cd TQA_code` and construct row and column representations of train and test splits using `build_RCI_train_and_test_data.ipynb`. Put the resulting files in the `TQA_code/datasets/IM_TQA/`, which include 4 files (i.e., `train_cols.jsonl.gz`, `train_rows.jsonl.gz`, `test_cols.jsonl.gz` and `test_rows.jsonl.gz`).
 #### Step 2: Train the RCI row and column model
 The training task is a 2-class sentence-pair classification task. Given a row or a column representation and a input question, the bert-base-chinese model learns to predict whether this row or column contains the final answer cell(s). The trained model will be respectively saved at `./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/col_bert_base` and `./datasets/IM_TQA/bert-base-chinese-epoch3-warmup0.1/row_bert_base`.
 ``` shell
